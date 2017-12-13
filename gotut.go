@@ -1,10 +1,20 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"net/http"
+)
+
+func indexHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Whoa, GO is neat!")
+}
+
+func aboutHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "About Page")
+}
 
 func main() {
-	x := 15
-	a := &x         // & is the pointer in Go (i.e. memory address - will not print out 15, but rather the memory hash)
-	fmt.Println(a)  // prints out the memory addy has has of the x
-	fmt.Println(*a) // reads through the memory addy to 15
+	http.HandleFunc("/", indexHandler)
+	http.HandleFunc("/about", aboutHandler)
+	http.ListenAndServe(":8000", nil)
 }
