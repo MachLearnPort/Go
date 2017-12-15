@@ -6,7 +6,10 @@ import (
 	"html/template"
 	"io/ioutil"
 	"net/http"
+	"sync"
 )
+
+var wg sync.WaitGroup()
 
 type siteMapIndex struct {
 	Locations []string `xml:"sitemap>loc"` // []string is a slice (i.e. [5]type is an array of fixed size (where type is int, float, etc), where as []type is a slice
@@ -39,6 +42,7 @@ func newsAggHandler(w http.ResponseWriter, r *http.Request) {
 	bytes, _ := ioutil.ReadAll(resp.Body)                                        // reading the body of the response
 	resp.Body.Close()                                                            // Close the resources that made the requests
 	xml.Unmarshal(bytes, &s)
+	resp.Body.Close()
 	// fmt.Println(s.Locations)
 
 	for _, Location := range s.Locations { // _ becuase we are not using that placeholder. Range iterates over our struture
@@ -46,9 +50,9 @@ func newsAggHandler(w http.ResponseWriter, r *http.Request) {
 		bytes, _ := ioutil.ReadAll(resp.Body)
 		resp.Body.Close()
 		xml.Unmarshal(bytes, &n) // reading the body of the response
+		resp.Body.Close()
 		//fmt.Println(n.Keywords)
-		// resp.Body.Close()
-
+		
 		//Creating out MAP with titles as our key
 		for idx := range n.Titles {
 			newsMap[n.Titles[idx]] = NewsMap{n.Keywords[idx], n.Locations[idx]}
